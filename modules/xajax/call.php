@@ -9,6 +9,12 @@
     include_once( 'lib/ezutils/classes/ezini.php' );
 
     $ini =& eZINI::instance( 'xajax.ini' );
+    
+    if ( $ini->variable( 'DebugSettings', 'DebugAlert' ) == 'enabled' )
+    {
+        $xajax->debugOn();
+    }
+    
     $functionFiles = $ini->variable( 'ExtensionSettings', 'AvailableFunctions' );
     $extensionDirectories = array_merge( 'xajax', $ini->variable( 'ExtensionSettings', 'ExtensionDirectories' ) );
     $directoryList = eZExtension::expandedPathList( $extensionDirectories, 'xajax' );
