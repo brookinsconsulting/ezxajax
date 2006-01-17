@@ -14,7 +14,7 @@ You won't register new functions with xajax regularly, so you can place it in a 
 
 Make sure your users have access to the xajax module (add a policy for the module).
 
-There's currently only one function registered with xajax by default, and it's called setPreferences. In JavaScript you can call it with xajax_setPreferences. It takes a hash of user preferences and stores them.
+There are currently three functions registered with xajax by default. One of them is setPreferences. In JavaScript you can call it with xajax_setPreferences. It takes a hash of user preferences and stores them.
 
 A little example:
 
@@ -95,3 +95,58 @@ function toggleAndRememberState(id, linkid)
     </div>
 </div>
 {undef $alertDisplay}
+
+
+
+The two other functions registered with xajax are addNotification and removeNotification. They are used to handle subtree notifications. They both take the node id and an optional piece of JavaScript to call if they succeed.
+
+A little example:
+
+<script type="text/javascript">
+<!--
+
+function notificationRemoved()
+{ldelim}
+    var divid = 'notification_div';
+    var nodeid = {$node.node_id};
+    var el = document.getElementById(divid);
+
+    if ( el != null )
+    {ldelim}
+        var html = '<input id="notification_button" class="button" type="button" value="Keep me updated" onclick="xajax_addNotification(' + nodeid + ', \'notificationAdded()\' );">';
+        el.innerHTML = html;
+    {rdelim} 
+{rdelim}
+
+function notificationAdded()
+{ldelim}
+    var divid = 'notification_div';
+    var nodeid = {$node.node_id};
+    var el = document.getElementById(divid);
+
+    if ( el != null )
+    {ldelim}
+        var html = '<input id="notification_button" class="button" type="button" value="Remove notification" onclick="xajax_removeNotification(' + nodeid + ', \'notificationRemoved()\' );">';
+        el.innerHTML = html;
+    {rdelim}
+{rdelim}
+
+-->
+</script>
+{def $subscriptions=fetch( 'notification', 'subscribed_nodes' ) $exists=false()}
+{foreach $subscriptions as $subscription}
+    {if $subscription.node.node_id|eq($node.node_id)}{set $exists=true()}{/if}
+{/foreach}
+
+<div id="notification_div">
+{if $exists}
+<input id="notification_button" class="button" type="button" value="Remove notification" onclick="xajax_removeNotification({$node.node_id}, 'notificationRemoved()');" />
+{else}
+<input id="notification_button" class="button" type="button" value="Keep me updated" onclick="xajax_addNotification({$node.node_id}, 'notificationAdded()');" />
+{/if}
+</div>
+{undef $subscriptions $exists}
+
+
+
+Both examples have been tested with Mozilla Firefox 1.5, Internet Explorer 6 and Opera 8.5.1 on Windows XP with Service Pack 2.
